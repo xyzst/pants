@@ -33,6 +33,8 @@ from pants.jvm.testutil import maybe_skip_jdk_test
 from pants.jvm.util_rules import rules as util_rules
 from pants.testutil.rule_runner import QueryRule, RuleRunner
 
+NAMED_RESOLVE_OPTIONS = '--jvm-resolves={"test": "coursier_resolve.lockfile"}'
+
 
 @pytest.fixture
 def rule_runner() -> RuleRunner:
@@ -53,6 +55,9 @@ def rule_runner() -> RuleRunner:
             QueryRule(SourceFiles, (SourceFilesRequest,)),
         ],
         target_types=[JvmDependencyLockfile, JavaSourceTarget],
+        bootstrap_args=[
+            NAMED_RESOLVE_OPTIONS,
+        ],
     )
 
 
@@ -65,15 +70,10 @@ def test_simple_java_parser_analysis(rule_runner: RuleRunner) -> None:
             .decode("utf-8"),
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name='lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 java_source(
                     name='simple-source',
                     source='SimpleSource.java',
-                    dependencies=[':lockfile'],
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -143,15 +143,10 @@ def test_java_parser_fallible_error(rule_runner: RuleRunner) -> None:
             .decode("utf-8"),
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name='lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 java_source(
                     name='simple-source',
                     source='SimpleSource.java',
-                    dependencies=[':lockfile'],
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -199,15 +194,10 @@ def test_java_parser_unnamed_package(rule_runner: RuleRunner) -> None:
             .decode("utf-8"),
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name='lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 java_source(
                     name='simple-source',
                     source='SimpleSource.java',
-                    dependencies=[':lockfile'],
+                    compatible_resolves=["test", ],
                 )
                 """
             ),

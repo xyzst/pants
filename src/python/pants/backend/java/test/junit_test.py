@@ -37,6 +37,8 @@ from pants.testutil.rule_runner import QueryRule, RuleRunner
 
 # TODO(12812): Switch tests to using parsed junit.xml results instead of scanning stdout strings.
 
+NAMED_RESOLVE_OPTIONS = '--jvm-resolves={"test": "coursier_resolve.lockfile"}'
+
 
 @pytest.fixture
 def rule_runner() -> RuleRunner:
@@ -66,6 +68,7 @@ def rule_runner() -> RuleRunner:
         bootstrap_args=[
             # Makes JUnit output predictable and parseable across versions (#12933):
             "--junit-args=['--disable-ansi-colors','--details=flat','--details-theme=ascii']",
+            NAMED_RESOLVE_OPTIONS,
         ],
     )
 
@@ -127,17 +130,13 @@ def test_vintage_simple_success(rule_runner: RuleRunner) -> None:
                   artifact = 'junit',
                   version = '4.13.2',
                 )
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
 
                 junit_tests(
                     name='example-test',
                     dependencies= [
-                        ':lockfile',
                         ':junit_junit',
                     ],
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -178,15 +177,10 @@ def test_vintage_simple_failure(rule_runner: RuleRunner) -> None:
                   artifact = 'junit',
                   version = '4.13.2',
                 )
-                coursier_lockfile(
-                    name='lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 junit_tests(
                     name='example-test',
+                    compatible_resolves=["test", ],
                     dependencies= [
-                        ':lockfile',
                         ':junit_junit',
                     ],
                 )
@@ -238,22 +232,16 @@ def test_vintage_success_with_dep(rule_runner: RuleRunner) -> None:
                   artifact = 'junit',
                   version = '4.13.2',
                 )
-                coursier_lockfile(
-                    name='lockfile',
-                    source="coursier_resolve.lockfile",
-                )
 
                 java_sources(
                     name='example-lib',
-                    dependencies = [
-                        ':lockfile',
-                    ],
+                    compatible_resolves=["test", ],
                 )
 
                 junit_tests(
                     name = 'example-test',
+                    compatible_resolves=["test", ],
                     dependencies = [
-                        ':lockfile',
                         ':junit_junit',
                         '//:example-lib',
                     ],
@@ -401,15 +389,11 @@ def test_jupiter_simple_success(rule_runner: RuleRunner) -> None:
                   artifact='junit-jupiter-api',
                   version='5.7.2',
                 )
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
 
                 junit_tests(
                     name = 'example-test',
+                    compatible_resolves=["test", ],
                     dependencies = [
-                        ':lockfile',
                         ':org.junit.jupiter_junit-jupiter-api',
                     ],
                 )
@@ -455,15 +439,10 @@ def test_jupiter_simple_failure(rule_runner: RuleRunner) -> None:
                   artifact='junit-jupiter-api',
                   version='5.7.2',
                 )
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 junit_tests(
                     name='example-test',
+                    compatible_resolves=["test", ],
                     dependencies= [
-                        ':lockfile',
                         ':org.junit.jupiter_junit-jupiter-api',
                     ],
                 )
@@ -516,22 +495,16 @@ def test_jupiter_success_with_dep(rule_runner: RuleRunner) -> None:
                   artifact='junit-jupiter-api',
                   version='5.7.2',
                 )
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
 
                 java_sources(
                     name='example-lib',
-                    dependencies = [
-                        ':lockfile',
-                    ],
+                    compatible_resolves=["test", ],
                 )
 
                 junit_tests(
                     name = 'example-test',
+                    compatible_resolves=["test", ],
                     dependencies = [
-                        ':lockfile',
                         ':org.junit.jupiter_junit-jupiter-api',
                         '//:example-lib',
                     ],

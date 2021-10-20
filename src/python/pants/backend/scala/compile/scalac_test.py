@@ -34,6 +34,8 @@ from pants.jvm.testutil import maybe_skip_jdk_test
 from pants.jvm.util_rules import rules as util_rules
 from pants.testutil.rule_runner import QueryRule, RuleRunner, logging
 
+NAMED_RESOLVE_OPTIONS = '--jvm-resolves={"test": "coursier_resolve.lockfile"}'
+
 
 @pytest.fixture
 def rule_runner() -> RuleRunner:
@@ -55,6 +57,9 @@ def rule_runner() -> RuleRunner:
             QueryRule(CoarsenedTargets, (Addresses,)),
         ],
         target_types=[JvmDependencyLockfile, ScalaSourcesGeneratorTarget, JvmArtifact],
+        bootstrap_args=[
+            NAMED_RESOLVE_OPTIONS,
+        ],
     )
 
 
@@ -102,16 +107,9 @@ def test_compile_no_deps(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 scala_sources(
                     name = 'lib',
-                    dependencies = [
-                        ':lockfile',
-                    ]
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -159,15 +157,10 @@ def test_compile_with_deps(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 scala_sources(
                     name = 'main',
+                    compatible_resolves=["test", ],
                     dependencies = [
-                        ':lockfile',
                         'lib:lib',
                     ]
                 )
@@ -181,9 +174,7 @@ def test_compile_with_deps(rule_runner: RuleRunner) -> None:
                 """\
                 scala_sources(
                     name = 'lib',
-                    dependencies = [
-                        '//:lockfile',
-                    ]
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -213,16 +204,9 @@ def test_compile_with_missing_dep_fails(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 scala_sources(
                     name = 'main',
-                    dependencies = [
-                        ':lockfile',
-                    ]
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -272,16 +256,9 @@ def test_compile_with_maven_deps(rule_runner: RuleRunner) -> None:
                     artifact = "joda-time",
                     version = "2.10.10",
                 )
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 scala_sources(
                     name = 'main',
-                    dependencies = [
-                        ':lockfile',
-                    ]
+                    compatible_resolves=["test", ],
                 )
                 """
             ),
@@ -320,16 +297,9 @@ def test_compile_with_missing_maven_dep_fails(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                coursier_lockfile(
-                    name = 'lockfile',
-                    source="coursier_resolve.lockfile",
-                )
-
                 scala_sources(
                     name = 'main',
-                    dependencies = [
-                        ':lockfile',
-                    ]
+                    compatible_resolves=["test", ],
                 )
                 """
             ),

@@ -31,6 +31,8 @@ from pants.jvm.testutil import maybe_skip_jdk_test
 from pants.jvm.util_rules import rules as util_rules
 from pants.testutil.rule_runner import QueryRule, RuleRunner
 
+NAMED_RESOLVE_OPTIONS = '--jvm-resolves={"test": "coursier_resolve.lockfile"}'
+
 
 @pytest.fixture
 def rule_runner() -> RuleRunner:
@@ -53,6 +55,9 @@ def rule_runner() -> RuleRunner:
             QueryRule(Targets, [UnparsedAddressInputs]),
         ],
         target_types=[JavaSourcesGeneratorTarget],
+        bootstrap_args=[
+            NAMED_RESOLVE_OPTIONS,
+        ],
     )
 
 
@@ -62,7 +67,7 @@ def test_parse_java_imports(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                java_sources(name = 'lib')
+                java_sources(name = 'lib', compatible_resolves = ['test',],)
                 """
             ),
             "ExampleLib.java": dedent(
@@ -97,7 +102,7 @@ def test_parse_java_imports_subtargets(rule_runner: RuleRunner) -> None:
         {
             "BUILD": dedent(
                 """\
-                java_sources(name = 'lib')
+                java_sources(name = 'lib', compatible_resolves = ['test',],)
                 """
             ),
             "ExampleLib.java": dedent(
