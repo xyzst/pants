@@ -68,12 +68,13 @@ class JvmArtifact(Target):
 
 class JvmCompatibleResolveNamesField(StringSequenceField):
     alias = "compatible_resolves"
-    required = True
+    required = False
     help = (
         # TODO: make this far less mathsy.
         "The set of resolve names that this target is compatible with. The intersection of the "
         "`compatible_resolves` fields for each target in the transitive closure of dependencies "
-        "must be non-empty."
+        "must be non-empty. This is required for all goals where 3rd-party dependencies are "
+        "consumed."
     )
 
 

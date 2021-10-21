@@ -467,8 +467,13 @@ async def get_coursier_lockfile_for_target(
         if target.has_field(JvmCompatibleResolveNamesField)
     ]
 
-    # NB. `JvmCompatibleResolveNamesField` is required, so the `if i is not None` is mostly to
-    # placate mypy
+    if any(i is None for i in transitive_jvm_resolve_names):
+        raise CoursierError(
+            # TODO: tidy up error messages -- specify the targets that do not have resolves.
+            "All JVM source targets must specify their `compatible_resolves` in order to "
+            "materialize the classpath."
+        )
+
     transitive_jvm_resolve_names_ = (set(i) for i in transitive_jvm_resolve_names if i is not None)
     compatible_resolves = reduce(operator.iand, transitive_jvm_resolve_names_)
 
